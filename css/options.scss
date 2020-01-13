@@ -1,0 +1,88 @@
+
+html, body {
+  margin: 0px;
+  padding: 0px;
+}
+
+.container {
+  section {
+    padding: 4px 8px;
+  }
+  button {
+    font-size: 12px;
+    padding: 2px 4px;
+    background: white;
+    border: 1px solid gray;
+    margin-bottom: 2px;
+    &:hover {
+      background: #ccc;
+    }
+  }
+
+  .form {
+    .form-item {
+      display: flex;
+      margin-bottom: 8px;
+      &-label {
+        width: 120px;
+        text-align: right;
+        padding: 0px 12px 0px 0px;
+        color: #FF4560;
+      }
+      &-content {
+        flex: 1;
+      }
+    }
+  }
+
+  section.options_setting {
+    width: 600px;
+    margin: 0px auto;
+    font-size: 12px;
+    color: black;
+    form.the-form {
+      .form-item {
+        display: flex;
+        margin-bottom: 10px;
+        input[type="file"], input[type="submit"], input[type="reset"] {
+        }
+        input[type="text"], textarea {
+          font-size: 14px;
+          line-height: 16px;
+          background-color: rgba(255, 255, 255, .5);
+          width: 100%;
+          box-sizing: border-box;
+          padding: 2px;
+        }
+        .label {
+          width: 220px;
+          font-size: 14px;
+          line-height: 22px;
+          text-align: right;
+          font-weight: bold;
+          color: black;
+          box-sizing: border-box;
+          padding-right: 10px;
+        }
+        .content {
+          flex: 1;
+          box-sizing: border-box;
+        }
+        &.title {
+          display: block;
+          font-weight: bold;
+          font-size: 18px;
+          text-align: center;
+          margin-bottom: 18px;
+        }
+        &.footer {
+          display: flex;
+          .item {
+            flex: 1;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}

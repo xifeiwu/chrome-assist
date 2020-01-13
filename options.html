@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+  <head>
+    <title>extension-busybox-options</title>
+    <script src="js/libs/common.js"></script>
+    <script src="js/libs/fe.js"></script>
+    <script src="js/libs/xhr.js"></script>
+    <script src="js/api/storage.js"></script>
+    <script src="js/api/tabs.js"></script>
+    <script src="js/api/bookmarks.js"></script>
+    <script src="js/api/helper.js"></script>
+    <script src="./js/options.js"></script>
+    <link rel="stylesheet" href="./css/options.css"></head>
+  </head>
+  <body>
+    <div class="container">
+      <section class="form api_test">
+        <div class="form-item basic">
+          <div class="form-item-label">BASIC:</div>
+          <div class="form-item-content">
+            <button data-action="runtime_restart">runtime_restart</button>
+            <button data-action="show_manifest">show_manifest</button>
+            <button data-action="open_page_option">open_page_option</button>
+          </div>
+        </div>
+        <!-- commands handled by popup -->
+        <div class="form-item storage">
+          <div class="form-item-label">STORAGE:</div>
+          <div class="form-item-content">
+            <button data-action="storage_all">storage_all</button>
+            <button data-action="storage_add_visit">storage_add_visit</button>
+            <button data-action="storage_clear">storage_clear</button>
+          </div>
+        </div>
+        <div class="form-item tab">
+          <div class="form-item-label">TAB:</div>
+          <div class="form-item-content">
+            <button data-action="active_tab">active_tab</button>
+            <button data-action="tabs_all">tabs_all</button>
+            <button data-action="tab_to_baidu">tab_to_baidu</button>
+          </div>
+        </div>
+        <div class="form-item bookmarks">
+          <div class="form-item-label">BOOKMARKS:</div>
+          <div class="form-item-content">
+            <button data-action="bookmarks_get_tree">bookmarks_get_tree</button>
+            <button data-action="bookmarks_create_folder">bookmarks_create_folder</button>
+            <button data-action="bookmarks_search_folder">bookmarks_search_folder</button>
+            <button data-action="bookmarks_create_bookmark">bookmarks_create_item</button>
+            <button data-action="bookmarks_list_folder">bookmarks_list_folder</button>
+            <button data-action="bookmarks_remove">bookmarks_remove</button>
+            <button data-action="bookmarks_remove_tree">bookmarks_remove_tree</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="options_setting">
+        <form class="the-form" name="the_form">
+          <div class="form-item title">Extension(Busybox) Setting</div>
+          <div class="form-item">
+            <div class="label">name</div>
+            <div class="content">
+              <input type="text" name="name">
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">server host</div>
+            <div class="content">
+              <input name="serverHost" type="text">
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">apartment farming skills</div>
+            <div class="content">
+              <label>
+                <input name="skill" type="radio" value="novice" checked>Novice
+              </label>
+              <label>
+                <input name="skill" type="radio" value="intermediate">Intermediate
+              </label>
+              <label>
+                <input name="skill" type="radio" value="advanced">Advanced
+              </label>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Select your favorite</div>
+            <div class="content">
+              <label>
+                <input name="likeMovie" type="checkbox" value="movie">Movie
+              </label>
+              <label>
+                <input name="likeMusic" type="checkbox" value="music">Music
+              </label>
+              <label>
+                <input name="likeReading" type="checkbox" value="reading">Reading
+              </label>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Where did you hear about us? </div>
+            <div class="content">
+              <!-- multiple for multiple select -->
+              <select name="refer">
+                <option value="no">No</option>
+                <option value="friend">Friend</option>
+                <option value="herban-jungle" selected>Herban Jungle</option>
+                <option value="compost-today">Compost Today</option>
+                <option value="vanity-fair">Vanity Fair</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Upload file</div>
+            <div class="content">
+              <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
+              <input name="uploadFiles" multiple type="file"></input>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Any additional comments? </div>
+            <div class="content">
+              <textarea name="comments" cols="35" rows="4"></textarea>
+            </div>
+          </div>
+          <div class="form-item footer">
+            <div class="item">
+              <input class="el-button" type="submit" value="save"></input>
+            </div>
+            <div class="item">
+              <input class="el-button" type="reset" value="restore"></input>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
