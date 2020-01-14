@@ -11,8 +11,9 @@
     throw new Error(`class CommonUtils is needed`);
   }
 
-class XhrUtils {
+class XhrUtils extends FEUtils {
   constructor() {
+    super();
     const isString = this.isString;
     const isNumber = this.isNumber;
     /** cookie operation */
@@ -336,6 +337,7 @@ function xhrRequest(config) {
   if (config.path && config.path.startsWith('/') && !config.url) {
     config.url = location.origin + config.path;
   }
+  config.url = config.url ? config.url : config.path;
   config.data = xhrUtils.transformRequest(config.data, config.headers);
 
   return new Promise(function dispatchXhrRequest(resolve, reject) {
