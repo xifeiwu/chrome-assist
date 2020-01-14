@@ -7,7 +7,7 @@ file              exports
 storage.js        Storage
 tabs.js           Tabs
 bookmarks.js      Bookmarks
-helper.js         ApiHelper(.storage, .tabs)
+helper.js         ApiHelper(.storage, .tabs, .bookmarks)
 ```
 
 
