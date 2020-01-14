@@ -12,6 +12,9 @@ class Helper {
 
     const heartBeat = false;
     heartBeat && this._heartBeat();
+
+    const netRequest = false;
+    netRequest && this._netRequest();
   }
 
   /**
@@ -36,7 +39,7 @@ class Helper {
 
   onListen() {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      const action = request.action;
+      const action = request.ask || request.answer;
       var requestData = request.data;
       switch (action) {
         case 'ping':
@@ -50,6 +53,11 @@ class Helper {
             action: "pong",
           });
           break;
+        case 'net_request':
+          console.log('asnswer of net_request:');
+          console.log(request.data);
+          sendResponse(null);
+          break;
       }
     });
   }
@@ -58,11 +66,19 @@ class Helper {
     var count = 0;
     setInterval(async() => {
       const response = await this._sendMessage({
-        action: 'count',
+        ask: 'count',
         data: count++
       });
       console.log(response);
     }, 5000);
+  }
+
+  async _netRequest() {
+    const response = await this._sendMessage({
+      ask: 'net_request',
+      data: 'login'
+    });
+    console.log(response);
   }
 
   longConnection() {

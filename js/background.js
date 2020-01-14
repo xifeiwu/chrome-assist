@@ -11,6 +11,15 @@ class Helper extends ApiHelper {
     this.allTabs = [];
   }
 
+  _sendMessageToTab(tabId, answer, data) {
+    chrome.tabs.sendMessage(tabId, {
+      answer,
+      data
+    }, (response) => {
+      console.log(`response of sendMessageToTab:`);
+      console.log(response);
+    });
+  }
   async _onListen() {
     // NOTICE: async await will cause error: (Unchecked runtime.lastError: The message port closed before a response was received.)
     /**
@@ -42,10 +51,10 @@ class Helper extends ApiHelper {
         }
       }
      */
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      console.log(sender);
-      console.log(request);
-      if (!request || !request.action) {
+    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+      // console.log(sender);
+      // console.log(request);
+      if (!request || !request.ask) {
         sendResponse(null);
         return;
       }
@@ -54,7 +63,27 @@ class Helper extends ApiHelper {
         sendResponse(null);
         return;
       }
-      sendResponse(tab);
+      const ask = request.ask;
+      switch (ask) {
+        case 'net_request':
+          sendResponse(null);
+          try {
+            const net = new Net('');
+            const response = await net.request({
+              path: 'http://www.baidu.com',
+              method: 'get'
+            });
+            // sendResponse只支持同步
+            // sendResponse(userInfo);
+            this._sendMessageToTab(tab.id, ask, response);
+          } catch (err) {
+            console.log(err);
+          }
+          break;
+        default:
+          sendResponse(tab);
+          break;
+      }
     });
   }
   _watchTab() {
@@ -138,6 +167,17 @@ class Helper extends ApiHelper {
       throw new Error(`key ask is not found in obj`);
     }
     switch (ask) {
+      case 'net_request':
+        const net = new Net('');
+        const response = await net.request({
+          path: 'http://www.baidu.com',
+          method: 'get'
+        });
+        connection.postMessage({
+          answer: ask,
+          data: response
+        })
+        break
       default:
         connection.postMessage({
           answer: ask,
@@ -174,8 +214,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
   helper.updateTimeStampInStorage();
   // helper.showAllStorage();
 });
-
-
 
 const _unhandledConnectionList = [];
 chrome.runtime.onConnect.addListener(function(connection) {
