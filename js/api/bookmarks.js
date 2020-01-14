@@ -14,15 +14,37 @@ return class {
     // Observe bookmark modifications and revert any modifications made to managed
     // bookmarks. The tree is always reloaded in case the events happened while the
     // page was inactive.
-    chrome.bookmarks.onCreated.addListener(function(id, bookmark) {
+
+/**
+format of createdInfo:
+{
+  dateAdded: 1578974165413
+  id: "1261"
+  index: 3
+  parentId: "1248"
+  title: "BAIDU_8e52_4bb1_d8d8_c2a1_1578974165413"
+  url: "http://www.baidu.com/"
+}
+*/
+
+    chrome.bookmarks.onCreated.addListener(function(id, createdInfo) {
       console.log({
         action: 'onCreated',
         data: {
-          id, bookmark
+          id, createdInfo
         }
       });
     });
 
+/**
+format of moveInfo:
+{
+  index: 1
+  oldIndex: 0
+  oldParentId: "1248"
+  parentId: "1249"
+}
+*/
     chrome.bookmarks.onMoved.addListener(function(id, moveInfo) {
       console.log({
         action: 'onMoved',
@@ -30,21 +52,15 @@ return class {
           id, moveInfo
         }
       });
-      // tree.load(function() {
-      //   var managedNode = tree.getById(id);
-      //   if (managedNode && !managedNode.isRoot()) {
-      //     managedNode.moveInModel(info.parentId, info.index, function(){});
-      //   } else {
-      //     // Check if the parent node has managed children that need to move.
-      //     // Example: moving a non-managed bookmark in front of the managed
-      //     // bookmarks.
-      //     var parentNode = tree.getById(info.parentId);
-      //     if (parentNode)
-      //       parentNode.reorderChildren();
-      //   }
-      // });
     });
 
+/**
+format of changeInfo:
+{
+  title: "BAIDU_1985_002e_a1f5_b543_1578973957871"
+  url: "http://www.baidu.com/"
+}
+*/
     chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
       console.log({
         action: 'onChanged',
@@ -52,26 +68,31 @@ return class {
           id, changeInfo
         }
       });
-      // tree.load(function() {
-      //   var managedNode = tree.getById(id);
-      //   if (!managedNode || managedNode.isRoot())
-      //     return;
-      //   chrome.bookmarks.update(id, {
-      //     'title': managedNode._title,
-      //     'url': managedNode._url
-      //   });
-      // });
     });
 
-    chrome.bookmarks.onRemoved.addListener(function(id, moveInfo) {
+/**
+format of removedInfo:
+{
+  index: 0
+  parentId: "1248"
+  node: {
+    dateAdded: 1578973680389
+    id: "1254"
+    title: "BAIDU_1985_002e_a1f5_b543_1578973957871"
+    url: "http://www.baidu.com/"
+  }
+}
+*/
+    chrome.bookmarks.onRemoved.addListener(function(id, removedInfo) {
       console.log({
         action: 'onRemoved',
         data: {
-          id, moveInfo
+          id, removedInfo
         }
       });
     });
 
+// not used by now
     chrome.bookmarks.onChildrenReordered.addListener(function(id, reorderInfo) {
       console.log({
         action: 'onChildrenReordered',
