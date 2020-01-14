@@ -5,25 +5,35 @@ html, body {
 .container section {
   padding: 4px 8px; }
 
-.container button {
-  font-size: 12px;
+.container button, .container .button {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 18px;
   padding: 2px 4px;
+  margin-bottom: 2px;
   background: white;
   border: 1px solid gray;
-  margin-bottom: 2px; }
-  .container button:hover {
+  border-radius: 4px; }
+  .container button:hover, .container .button:hover {
+    cursor: pointer;
     background: #ccc; }
 
-.container .form .form-item {
-  display: flex;
-  margin-bottom: 8px; }
-  .container .form .form-item-label {
-    width: 120px;
-    text-align: right;
-    padding: 0px 12px 0px 0px;
-    color: #FF4560; }
-  .container .form .form-item-content {
-    flex: 1; }
+.container .form {
+  font-size: 14px;
+  line-height: 18px; }
+  .container .form .form-item {
+    display: flex;
+    margin-bottom: 8px; }
+    .container .form .form-item-label {
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 24px;
+      width: 120px;
+      text-align: right;
+      padding: 0px 12px 0px 0px;
+      color: #67C23A; }
+    .container .form .form-item-content {
+      flex: 1; }
 
 .container section.options_setting {
   width: 600px;

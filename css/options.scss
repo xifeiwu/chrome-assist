@@ -8,26 +8,36 @@ html, body {
   section {
     padding: 4px 8px;
   }
-  button {
-    font-size: 12px;
+  button, .button {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 18px;
     padding: 2px 4px;
+    margin-bottom: 2px;
     background: white;
     border: 1px solid gray;
-    margin-bottom: 2px;
+    border-radius: 4px;
     &:hover {
+      cursor: pointer;
       background: #ccc;
     }
   }
 
   .form {
+    font-size: 14px;
+    line-height: 18px;
     .form-item {
       display: flex;
       margin-bottom: 8px;
       &-label {
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 24px;
         width: 120px;
         text-align: right;
         padding: 0px 12px 0px 0px;
-        color: #FF4560;
+        // color: #FF4560;
+        color: #67C23A;
       }
       &-content {
         flex: 1;
