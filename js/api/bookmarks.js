@@ -26,7 +26,6 @@ format of createdInfo:
   url: "http://www.baidu.com/"
 }
 */
-
     chrome.bookmarks.onCreated.addListener(function(id, createdInfo) {
       console.log({
         action: 'onCreated',

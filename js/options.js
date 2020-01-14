@@ -6,6 +6,17 @@ class Helper extends ApiHelper {
     this.connection.onMessage.addListener(function(data) {
       console.log(data);
     });
+
+    this.URL_LIST = {
+      login: {
+        path: '/api/user/login',
+        method: 'post'
+      },
+      verify_token: {
+        path: '/api/user/verifyToken',
+        method: 'get'
+      }
+    }
     ApiHelper.bookmarks.startWatch();
   }
   askBackground(obj) {
@@ -282,9 +293,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const helper = new Helper();
   const container = document.querySelector('.container');
 
-  // handle button action
-  try {
-    const sectionApiTest = container.querySelector('section.api_test');
+  // logic of section api_show
+  const sectionApiShow = (show) => {
+    const sectionApiTest = container.querySelector('section.api_show');
+    sectionApiTest.style.display = show ? 'block' : 'none';
+
+    // 只设置一次click listener
+    if (sectionApiTest.hasAddClickListener) {
+      return;
+    }
     // NOTICE: click event of Node with tagName 'button' will be listened here.
     sectionApiTest.addEventListener('click', async evt => {
       // console.log(evt);
@@ -298,15 +315,88 @@ document.addEventListener('DOMContentLoaded', () => {
       var action = target.dataset.action;
       helper.handleAction(action);
     });
-  } catch(err) {console.log(err)}
+    sectionApiTest.hasAddClickListener = true;
+  }
 
-  // handle option config
-  try {
+  const sectionAssist = async show => {
+    const sectionAssist = container.querySelector('section.assist');
+    sectionAssist.style.display = show ? 'block' : 'none';
+
+    if (!show) {
+      return;
+    }
+    var neegLogin = true;
+    const setting = await ApiHelper.storage.getData('setting');
+    var serverOrigin = setting.serverOrigin;
+    if (!serverOrigin) {
+      throw new Error('Error: setting.serverOrigin未找到');
+    }
+
+    var {token, username, realname, role} = {};
+    try {
+      const userInfo = await ApiHelper.storage.getData('userInfo');
+      if (!setting || !userInfo) {
+        throw new Error(`setting or userInfo not found in storage!`);
+      }
+      token = userInfo.token;
+      username = userInfo.username;
+      if (token && username) {
+        const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.verify_token, {
+          path: `${serverOrigin}${helper.URL_LIST.verify_token.path}`,
+          headers: {
+            token
+          }
+        }));
+        neegLogin = false;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    const loginForm = sectionAssist.querySelector(':scope > form.form_login');
+    const loginInfo = sectionAssist.querySelector(':scope > .login_info');
+    if (neegLogin) {
+      loginForm.style.display = 'block';
+      loginInfo.style.display = 'none';
+      loginForm.onsubmit = async evt => {
+        const target = evt.target;
+        try {
+          if (!serverOrigin) {
+            throw new Error(`serverOrigin not found, set serverOrigin first`);
+          }
+          const username = target.username.value.trim();
+          const password = target.password.value.trim();
+          if (!username || !password) {
+            throw new Error(`username or password is null!`);
+          }
+          const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.login, {
+            path: `${serverOrigin}${helper.URL_LIST.login.path}`,
+            data: {
+              username, password
+            }
+          }));
+          console.log(userInfo);
+        } catch (err) {console.log(err);}
+        // _saveForm(theForm);
+        evt.preventDefault();
+      };
+    } else {
+      loginForm.style.display = 'none';
+      loginInfo.style.display = 'block';
+      loginInfo.textContent = `你好，${username}`;
+    }
+    // console.log(setting);
+  }
+
+  const sectionSetting = show => {
     const sectionOptionSetting = container.querySelector('section.options_setting');
-    const theForm = sectionOptionSetting.querySelector('form.the-form');
+    // const sectionApiTest = container.querySelector('section.api_show');
+    sectionOptionSetting.style.display = show ? 'block' : 'none';
+
+    const theForm = sectionOptionSetting.querySelector('form.form_setting');
     // const theForm = the_form;
     const DEFAULT_SETTING = {
-      serverHost: ''
+      serverOrigin: ''
     };
     const _restoreForm = async(theForm) => {
       var _setting = await ApiHelper.storage.getData('setting');
@@ -326,24 +416,49 @@ document.addEventListener('DOMContentLoaded', () => {
       Object.keys(DEFAULT_SETTING).forEach(key => {
         setting[key] = theForm[key].value;
       })
-      await ApiHelper.storage.setData({setting})
+      await ApiHelper.storage.setData({setting});
+      console.log('保存成功！');
     }
 
     _restoreForm(theForm);
 
+    // 只设置一次listener
+    if (sectionOptionSetting.hasAddEventListener) {
+      return;
+    }
     theForm.addEventListener('submit', evt => {
-      console.log(evt);
       const target = evt.target;
       console.log(target.serverHost);
       _saveForm(theForm);
-      console.log(`done: submit form`);
       evt.preventDefault();
     });
     theForm.addEventListener('reset', evt => {
       _restoreForm(theForm);
-      console.log(`done: reset form`);
       evt.preventDefault();
     });
-  } catch (err) {console.log(err)}
+    sectionOptionSetting.hasAddEventListener = true;
+  }
+
+  try {
+    const sectionHeader = container.querySelector('.header');
+    const selector = sectionHeader.querySelector('.selector');
+    const inputApiShow = selector.querySelector('input[name="apiShow"]');
+    const inputAssist = selector.querySelector('input[name="assist"]');
+    const inputSetting = selector.querySelector('input[name="setting"]');
+    inputApiShow.checked = false;
+    inputAssist.checked = true;
+    inputSetting.checked = false;
+    sectionApiShow(inputApiShow.checked);
+    sectionAssist(inputAssist.checked);
+    sectionSetting(inputSetting.checked);
+    selector.addEventListener('change', evt => {
+      // console.log(evt);
+      sectionApiShow(inputApiShow.checked);
+      sectionAssist(inputAssist.checked);
+      sectionSetting(inputSetting.checked);
+    });
+  } catch (err) { console.log(err); }
+
+  // handle option config
   console.log(`onDOMContentLoaded`);
 });

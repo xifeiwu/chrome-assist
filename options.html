@@ -1,7 +1,8 @@
 <!doctype html>
 <html>
   <head>
-    <title>extension-busybox-options</title>
+    <title>assist-options</title>
+    <meta charset="utf-8">
     <script src="js/libs/common.js"></script>
     <script src="js/libs/fe.js"></script>
     <script src="js/libs/xhr.js"></script>
@@ -14,7 +15,20 @@
   </head>
   <body>
     <div class="container">
-      <section class="form api_test">
+      <section class="header">
+        <div class="selector">
+          <label>
+            <input name="apiShow" type="checkbox" value="movie">api_show
+          </label>
+          <label>
+            <input name="assist" type="checkbox" value="music">assist
+          </label>
+          <label>
+            <input name="setting" type="checkbox" value="reading">setting
+          </label>
+        </div>
+      </section>
+      <section class="form api_show">
         <div class="form-item basic">
           <div class="form-item-label">BASIC:</div>
           <div class="form-item-content">
@@ -57,8 +71,33 @@
         </div>
       </section>
 
+      <section class="assist">
+        <form class="form_login" name="form_login" style="display: none">
+          <div class="form-item title">Login</div>
+          <div class="form-item">
+            <div class="label">name</div>
+            <div class="content">
+              <input type="text" name="username">
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">password</div>
+            <div class="content">
+              <input name="password" type="text">
+            </div>
+          </div>
+          <div class="form-item footer">
+            <div class="item">
+              <input class="el-button" type="submit" value="save"></input>
+            </div>
+          </div>
+        </form>
+        <div class="login_info" style="display: none"></div>
+
+      </section>
+
       <section class="options_setting">
-        <form class="the-form" name="the_form">
+        <form class="form_setting" name="form_setting">
           <div class="form-item title">Extension(Busybox) Setting</div>
           <div class="form-item">
             <div class="label">name</div>
@@ -67,9 +106,9 @@
             </div>
           </div>
           <div class="form-item">
-            <div class="label">server host</div>
+            <div class="label">server origin</div>
             <div class="content">
-              <input name="serverHost" type="text">
+              <input name="serverOrigin" type="text">
             </div>
           </div>
           <div class="form-item">

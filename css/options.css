@@ -35,41 +35,52 @@ html, body {
     .container .form .form-item-content {
       flex: 1; }
 
-.container section.options_setting {
-  width: 600px;
-  margin: 0px auto;
+.container form.form_login, .container form.form_setting {
   font-size: 12px;
   color: black; }
-  .container section.options_setting form.the-form .form-item {
+  .container form.form_login .form-item, .container form.form_setting .form-item {
     display: flex;
     margin-bottom: 10px; }
-    .container section.options_setting form.the-form .form-item input[type="text"], .container section.options_setting form.the-form .form-item textarea {
+    .container form.form_login .form-item input[type="text"], .container form.form_login .form-item textarea, .container form.form_setting .form-item input[type="text"], .container form.form_setting .form-item textarea {
       font-size: 14px;
       line-height: 16px;
       background-color: rgba(255, 255, 255, 0.5);
       width: 100%;
       box-sizing: border-box;
       padding: 2px; }
-    .container section.options_setting form.the-form .form-item .label {
+    .container form.form_login .form-item .label, .container form.form_setting .form-item .label {
       width: 220px;
       font-size: 14px;
       line-height: 22px;
       text-align: right;
-      font-weight: bold;
       color: black;
       box-sizing: border-box;
       padding-right: 10px; }
-    .container section.options_setting form.the-form .form-item .content {
+    .container form.form_login .form-item .content, .container form.form_setting .form-item .content {
       flex: 1;
       box-sizing: border-box; }
-    .container section.options_setting form.the-form .form-item.title {
+    .container form.form_login .form-item.title, .container form.form_setting .form-item.title {
       display: block;
-      font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       text-align: center;
-      margin-bottom: 18px; }
-    .container section.options_setting form.the-form .form-item.footer {
+      margin-bottom: 16px;
+      font-weight: bold; }
+    .container form.form_login .form-item.footer, .container form.form_setting .form-item.footer {
       display: flex; }
-      .container section.options_setting form.the-form .form-item.footer .item {
+      .container form.form_login .form-item.footer .item, .container form.form_setting .form-item.footer .item {
         flex: 1;
         text-align: center; }
+
+.container section.assist {
+  margin-top: 20px; }
+  .container section.assist form.form_login {
+    margin: 0px auto;
+    width: 300px; }
+    .container section.assist form.form_login .label {
+      width: 100px; }
+
+.container section.options_setting {
+  width: 500px;
+  margin: 20px auto;
+  font-size: 12px;
+  color: black; }
