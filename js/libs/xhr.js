@@ -2,11 +2,11 @@
 
 // avoid global pollution
 (function(root, factory) {
-  const results = factory(FEUtils);
-  ['utils', 'xhrRequest'].forEach(prop => {
-    root[prop] = results[prop];
-  });
-}(this, function(FEUtils) {
+  const results = factory();
+  for (let key in results) {
+    root[key] = results[key];
+  }
+}(this, function() {
   if (!FEUtils) {
     throw new Error(`class CommonUtils is needed`);
   }
@@ -314,7 +314,8 @@ class Utils extends FEUtils {
       case 'multipart/form-data':
         data = new FormData();
         for (let key in obj) {
-          data.append(key, obj[key]);
+          const value = obj[key];
+          Array.isArray(value) ? value.forEach(it => data.append(key, it)) : data.append(key, obj[key]);
         }
         break;
     }
@@ -330,8 +331,8 @@ function xhrRequest(config) {
     headers: {
       'Accept': 'application/json, text/plain, */*'
     },
-    xsrfCookieName: 'XSRF-TOKEN',
-    xsrfHeaderName: 'X-XSRF-TOKEN',
+    // xsrfCookieName: 'XSRF-TOKEN',
+    // xsrfHeaderName: 'X-XSRF-TOKEN',
     settle(resolve, reject, response) {
       const validateStatus = function(status) {
         return status >= 200 && status < 300;
@@ -342,7 +343,7 @@ function xhrRequest(config) {
         reject(utils.createError(
           'Request failed with status code ' + response.status,
           response.config,
-          null,
+          response.status,
           response.request,
           response
         ));
@@ -353,6 +354,7 @@ function xhrRequest(config) {
   if (config.query) {
     config.params = config.query
   }
+  // NOTICE: the logic of url and path
   if (config.path && config.path.startsWith('/') && !config.url) {
     config.url = location.origin + config.path;
   }
@@ -449,7 +451,7 @@ function xhrRequest(config) {
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
       // Add xsrf header
-      var xsrfValue = (config.withCredentials || utils.isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+      var xsrfValue =  config.xsrfCookieName && (config.withCredentials || utils.isURLSameOrigin(config.url)) ?
         utils.cookies.read(config.xsrfCookieName) :
         undefined;
 
