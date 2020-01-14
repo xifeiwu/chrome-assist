@@ -7,16 +7,7 @@ class Helper extends ApiHelper {
       console.log(data);
     });
 
-    this.URL_LIST = {
-      login: {
-        path: '/api/user/login',
-        method: 'post'
-      },
-      verify_token: {
-        path: '/api/user/verifyToken',
-        method: 'get'
-      }
-    }
+
     ApiHelper.bookmarks.startWatch();
   }
   askBackground(obj) {
@@ -279,6 +270,12 @@ class Helper extends ApiHelper {
       case 'bookmarks_recent':
         chrome.bookmarks.getRecent(10, results => console.log(results));
         break;
+      case 'net_login':
+        this.askBackground({
+          ask: 'net_request',
+          action: 'request_baidu'
+        });
+        break;
       default:
         console.log(`unhandled action: ${action}`);
         break;
@@ -295,27 +292,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // logic of section api_show
   const sectionApiShow = (show) => {
-    const sectionApiTest = container.querySelector('section.api_show');
-    sectionApiTest.style.display = show ? 'block' : 'none';
+    const sectionApiShow = container.querySelector('section.api_show');
+    sectionApiShow.style.display = show ? 'block' : 'none';
 
     // 只设置一次click listener
-    if (sectionApiTest.hasAddClickListener) {
+    if (sectionApiShow.hasAddClickListener) {
       return;
     }
     // NOTICE: click event of Node with tagName 'button' will be listened here.
-    sectionApiTest.addEventListener('click', async evt => {
+    sectionApiShow.addEventListener('click', async evt => {
       // console.log(evt);
       var target = evt.target;
-      while (target && target !== sectionApiTest && target.tagName != 'BUTTON') {
+      while (target && target !== sectionApiShow && target.tagName != 'BUTTON') {
         target = target.parentNode;
       }
-      if (!target || target == sectionApiTest) {
+      if (!target || target == sectionApiShow) {
         return;
       }
       var action = target.dataset.action;
       helper.handleAction(action);
     });
-    sectionApiTest.hasAddClickListener = true;
+    sectionApiShow.hasAddClickListener = true;
   }
 
   const sectionAssist = async show => {
@@ -331,25 +328,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!serverOrigin) {
       throw new Error('Error: setting.serverOrigin未找到');
     }
+    const net = new Net(serverOrigin);
 
+    var userInfo = null;
     var {token, username, realname, role} = {};
     try {
-      const userInfo = await ApiHelper.storage.getData('userInfo');
+      userInfo = await ApiHelper.storage.getData('userInfo');
       if (!setting || !userInfo) {
         throw new Error(`setting or userInfo not found in storage!`);
       }
       token = userInfo.token;
       username = userInfo.username;
       if (token && username) {
-        const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.verify_token, {
-          path: `${serverOrigin}${helper.URL_LIST.verify_token.path}`,
+        userInfo = await net.requestData(net.URL_LIST.verify_token, {
           headers: {
             token
           }
-        }));
+        });
         neegLogin = false;
       }
     } catch (err) {
+      console.log(err.code);
       console.log(err);
     }
 
@@ -370,19 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!username || !password) {
             throw new Error(`username or password is null!`);
           }
-          console.log(Object.assign(helper.URL_LIST.login, {
-            path: `${serverOrigin}${helper.URL_LIST.login.path}`,
+          userInfo = (await net.request(net.URL_LIST.login, {
             data: {
-              username, password
+              username,
+              password
             }
-          }));
-          const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.login, {
-            path: `${serverOrigin}${helper.URL_LIST.login.path}`,
-            data: {
-              username, password
-            }
-          }));
-          console.log(userInfo);
+          })).data;
+          // console.log(userInfo);
+          ApiHelper.storage.setData({userInfo});
         } catch (err) {console.log(err);}
       };
       // loginForm.addEventListener('submit', async evt => {
@@ -416,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const sectionSetting = show => {
     const sectionOptionSetting = container.querySelector('section.options_setting');
-    // const sectionApiTest = container.querySelector('section.api_show');
+    // const sectionApiShow = container.querySelector('section.api_show');
     sectionOptionSetting.style.display = show ? 'block' : 'none';
 
     const theForm = sectionOptionSetting.querySelector('form.form_setting');

@@ -2,18 +2,15 @@
 
 // avoid global pollution
 (function(root, factory) {
-  const results = factory();
-  for (let key in results) {
-    root[key] = results[key];
-  }
+  root.Net = factory();
 }(this, function() {
-  if (!xhrRequest) {
+  if (!utils || !xhrRequest) {
     throw new Error(`function xhrRequest is needed`);
   }
 
 class Net {
-  constructor() {
-    this.URL_LIST = {
+  constructor(origin) {
+    const URL_LIST = {
       login: {
         path: '/api/user/login',
         method: 'post'
@@ -23,12 +20,25 @@ class Net {
         method: 'get'
       }
     }
+    Object.keys(URL_LIST).forEach(key => {
+      const value = URL_LIST[key];
+      value.path = `${origin}${value.path}`;
+    });
+    this.URL_LIST = URL_LIST;
   }
   async request({path, method}, otherConfig) {
-
-
+     return await xhrRequest(utils.deepMerge({
+       path, method
+     }, otherConfig));
+  }
+  async requestData({path, method}, otherConfig) {
+     const response =  await xhrRequest(utils.deepMerge({
+       path, method
+     }, otherConfig));
+     return response.data;
   }
 }
 
+return Net;
 
 }))

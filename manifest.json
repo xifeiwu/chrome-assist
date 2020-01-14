@@ -25,6 +25,7 @@
     "bookmarks",
     "storage",
     "http://*/",
-    "https://*/"
+    "https://*/",
+    "<all_urls>"
   ]
 }
