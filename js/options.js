@@ -76,15 +76,10 @@ class Helper extends ApiHelper {
         });
         break;
 
-      case 'bookmarks_get_tree':
-        chrome.bookmarks.getTree(tree => {
-          console.log(tree);
-        })
-        break;
-      case '_bookmarks_search_folder_test':
+      case '_bookmarks_search_folder_test_1':
         return new Promise((resolve, reject) => {
           chrome.bookmarks.search({
-            title: 'test_folder'
+            title: 'test_1'
           }, results => {
             if (Array.isArray(results)) {
               if (results.length > 0) {
@@ -100,16 +95,67 @@ class Helper extends ApiHelper {
           }
         )});
         break;
+      case '_bookmarks_search_folder_test_2':
+        return new Promise((resolve, reject) => {
+          chrome.bookmarks.search({
+            title: 'test_2'
+          }, results => {
+            if (Array.isArray(results)) {
+              if (results.length > 0) {
+                resolve(results[0]);
+              } else {
+                // not found folder
+                resolve(null);
+              }
+            } else {
+              // Error: structure is not correct
+              reject(results);
+            }
+          }
+        )});
+        break;
+      case '_bookmarks_get_first_child':
+        try {
+          const testFolder = await this.handleAction('_bookmarks_search_folder_test_1');
+          return new Promise((resolve, reject) => {
+            chrome.bookmarks.getSubTree(testFolder.id, results => {
+              if (!Array.isArray(results) || results.length === 0) {
+                reject(`get sub tree fail`);
+                return;
+              }
+              results = results[0];
+              if (!Array.isArray(results.children) || results.children.length === 0) {
+                reject(`folder is empty!`);
+                return;
+              }
+              resolve(results.children[0]);
+            });
+          });
+        } catch (err) {
+          throw err;
+        }
+        break;
+      case 'bookmarks_get_tree':
+        chrome.bookmarks.getTree(tree => {
+          console.log(tree);
+        })
+        break;
       case 'bookmarks_create_folder':
         try {
-          const testFolder = await this.handleAction('_bookmarks_search_folder_test');
-          if (testFolder) {
+          var folderName = 'test_1';
+          const testFolder1 = await this.handleAction('_bookmarks_search_folder_test_1');
+          const testFolder2 = await this.handleAction('_bookmarks_search_folder_test_2');
+          if (!testFolder1) {
+            folderName = 'test_1';
+          } else if (!testFolder2) {
+            folderName = 'test_2';
+          } else {
             console.log(`test folder already exist!`);
             return;
           }
           chrome.bookmarks.create({
             parentId: '1',
-            title: 'test_folder'
+            title: folderName
           }, (newFolder) => {
             console.log("added folder: ");
             console.log(newFolder);
@@ -118,12 +164,37 @@ class Helper extends ApiHelper {
           console.log(err);
         }
         break;
+      case 'bookmarks_list_folder':
+        try {
+          const testFolder = await this.handleAction('_bookmarks_search_folder_test_1');
+          if (!testFolder) {
+            throw new Error(`test folder not exist!`);
+          }
+          chrome.bookmarks.getSubTree(testFolder.id, results => console.log(results));
+        } catch (err) {
+          console.log(err);
+        }
+        break;
       case 'bookmarks_search_folder':
-        console.log(await this.handleAction('_bookmarks_search_folder_test'));
+        console.log(await this.handleAction('_bookmarks_search_folder_test_1'));
+        break;
+      case 'bookmarks_remove_tree':
+        try {
+          const testFolder = await this.handleAction('_bookmarks_search_folder_test_1');
+          if (!testFolder) {
+            throw new Error(`test folder not exist!`);
+          }
+          chrome.bookmarks.removeTree(testFolder.id, results => {
+            console.log('bookmarks_remove_tree');
+            console.log(results);
+          });
+        } catch (err) {
+          console.log(err);
+        }
         break;
       case 'bookmarks_create_bookmark':
         try {
-          const testFolder = await this.handleAction('_bookmarks_search_folder_test');
+          const testFolder = await this.handleAction('_bookmarks_search_folder_test_1');
           if (!testFolder) {
             console.log(`test folder not exist!`);
             return;
@@ -141,46 +212,61 @@ class Helper extends ApiHelper {
           console.log(err);
         }
         break;
-      case 'bookmarks_list_folder':
-        try {
-          const testFolder = await this.handleAction('_bookmarks_search_folder_test');
-          if (!testFolder) {
-            throw new Error(`test folder not exist!`);
-          }
-          chrome.bookmarks.getSubTree(testFolder.id, results => console.log(results));
-        } catch (err) {
-          console.log(err);
-        }
-        break;
       case 'bookmarks_remove':
         try {
-          const testFolder = await this.handleAction('_bookmarks_search_folder_test');
-          if (!testFolder) {
-            throw new Error(`test folder not exist!`);
+          const firstChild = await this.handleAction('_bookmarks_get_first_child');
+          if (!firstChild) {
+            throw new Error(`firstChild not exist!`);
           }
           // NOTICE: if folder is not empty, 
           // Error will occur: `Unchecked runtime.lastError: Can't remove non-empty folder (use recursive to force).`
-          chrome.bookmarks.remove(testFolder.id, results => {
+          chrome.bookmarks.remove(firstChild.id, () => {
             console.log('bookmarks_remove');
-            console.log(results);
           });
         } catch (err) {
           console.log(err);
         }
         break;
-      case 'bookmarks_remove_tree':
+      case 'bookmarks_update':
         try {
-          const testFolder = await this.handleAction('_bookmarks_search_folder_test');
-          if (!testFolder) {
-            throw new Error(`test folder not exist!`);
+          const firstChild = await this.handleAction('_bookmarks_get_first_child');
+          if (!firstChild) {
+            throw new Error(`firstChild not exist!`);
           }
-          chrome.bookmarks.removeTree(testFolder.id, results => {
-            console.log('bookmarks_remove_tree');
-            console.log(results);
+          // NOTICE: if folder is not empty, 
+          // Error will occur: `Unchecked runtime.lastError: Can't remove non-empty folder (use recursive to force).`
+          chrome.bookmarks.update(firstChild.id, {
+            title: `BAIDU_${utils.getUid()}`,
+            url: firstChild.url
+          }, () => {
+            console.log('bookmarks_update');
           });
         } catch (err) {
           console.log(err);
         }
+        break;
+      case 'bookmarks_move':
+        try {
+          const testFolder1 = await this.handleAction('_bookmarks_search_folder_test_1');
+          const testFolder2 = await this.handleAction('_bookmarks_search_folder_test_2');
+          const firstChild = await this.handleAction('_bookmarks_get_first_child');
+          if (!firstChild) {
+            throw new Error(`firstChild not exist!`);
+          }
+          // NOTICE: if folder is not empty, 
+          // Error will occur: `Unchecked runtime.lastError: Can't remove non-empty folder (use recursive to force).`
+          chrome.bookmarks.move(firstChild.id, {
+            parentId: testFolder2.id,
+            index: 0
+          }, () => {
+            console.log('bookmarks_move');
+          });
+        } catch (err) {
+          console.log(err);
+        }
+        break;
+      case 'bookmarks_recent':
+        chrome.bookmarks.getRecent(10, results => console.log(results));
         break;
       default:
         console.log(`unhandled action: ${action}`);
