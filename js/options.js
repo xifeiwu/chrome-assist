@@ -359,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loginForm.style.display = 'block';
       loginInfo.style.display = 'none';
       loginForm.onsubmit = async evt => {
+        evt.preventDefault();
         const target = evt.target;
         try {
           if (!serverOrigin) {
@@ -369,6 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!username || !password) {
             throw new Error(`username or password is null!`);
           }
+          console.log(Object.assign(helper.URL_LIST.login, {
+            path: `${serverOrigin}${helper.URL_LIST.login.path}`,
+            data: {
+              username, password
+            }
+          }));
           const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.login, {
             path: `${serverOrigin}${helper.URL_LIST.login.path}`,
             data: {
@@ -377,9 +384,28 @@ document.addEventListener('DOMContentLoaded', () => {
           }));
           console.log(userInfo);
         } catch (err) {console.log(err);}
-        // _saveForm(theForm);
-        evt.preventDefault();
       };
+      // loginForm.addEventListener('submit', async evt => {
+      //   evt.preventDefault();
+      //   const target = evt.target;
+      //   try {
+      //     if (!serverOrigin) {
+      //       throw new Error(`serverOrigin not found, set serverOrigin first`);
+      //     }
+      //     const username = target.username.value.trim();
+      //     const password = target.password.value.trim();
+      //     if (!username || !password) {
+      //       throw new Error(`username or password is null!`);
+      //     }
+      //     const userInfo = await xhrRequest(Object.assign(helper.URL_LIST.login, {
+      //       path: `${serverOrigin}${helper.URL_LIST.login.path}`,
+      //       data: {
+      //         username, password
+      //       }
+      //     }));
+      //     console.log(userInfo);
+      //   } catch (err) {console.log(err);}
+      // });
     } else {
       loginForm.style.display = 'none';
       loginInfo.style.display = 'block';

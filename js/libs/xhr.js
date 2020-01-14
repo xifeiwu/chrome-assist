@@ -11,9 +11,8 @@
     throw new Error(`class CommonUtils is needed`);
   }
 
-class Utils extends FEUtils {
+class XhrUtils {
   constructor() {
-    super();
     const isString = this.isString;
     const isNumber = this.isNumber;
     /** cookie operation */
@@ -299,30 +298,9 @@ class Utils extends FEUtils {
     }
     return data;
   }
-  dataFromJSONByContentType(obj, contentType) {
-    var data = obj;
-    switch (contentType) {
-      case 'application/json':
-        break;
-      case 'application/x-www-form-urlencoded':
-        data = new URLSearchParams();
-        for (let key in obj) {
-          data.append(key, obj[key]);
-        }
-        data = data.toString();
-        break;
-      case 'multipart/form-data':
-        data = new FormData();
-        for (let key in obj) {
-          const value = obj[key];
-          Array.isArray(value) ? value.forEach(it => data.append(key, it)) : data.append(key, obj[key]);
-        }
-        break;
-    }
-    return data;
-  }
 }
-const utils = new Utils();
+
+const xhrUtils = new XhrUtils();
 
 function xhrRequest(config) {
   const defaultConfig = {
@@ -340,7 +318,7 @@ function xhrRequest(config) {
       if (validateStatus(response.status)) {
         resolve(response);
       } else {
-        reject(utils.createError(
+        reject(xhrUtils.createError(
           'Request failed with status code ' + response.status,
           response.config,
           response.status,
@@ -358,7 +336,7 @@ function xhrRequest(config) {
   if (config.path && config.path.startsWith('/') && !config.url) {
     config.url = location.origin + config.path;
   }
-  config.data = utils.transformRequest(config.data, config.headers);
+  config.data = xhrUtils.transformRequest(config.data, config.headers);
 
   return new Promise(function dispatchXhrRequest(resolve, reject) {
     var requestData = config.data;
@@ -377,7 +355,7 @@ function xhrRequest(config) {
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
-    request.open(config.method.toUpperCase(), utils.buildURL(config.url, config.params, config.paramsSerializer), true);
+    request.open(config.method.toUpperCase(), xhrUtils.buildURL(config.url, config.params, config.paramsSerializer), true);
 
     // Set the request timeout in MS
     request.timeout = config.timeout;
@@ -397,9 +375,9 @@ function xhrRequest(config) {
       }
 
       // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? utils.parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseHeaders = 'getAllResponseHeaders' in request ? xhrUtils.parseHeaders(request.getAllResponseHeaders()) : null;
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      responseData = utils.transformResponse(responseData);
+      responseData = xhrUtils.transformResponse(responseData);
       var response = {
         data: responseData,
         status: request.status,
@@ -421,7 +399,7 @@ function xhrRequest(config) {
         return;
       }
 
-      reject(utils.createError('Request aborted', config, 'ECONNABORTED', request));
+      reject(xhrUtils.createError('Request aborted', config, 'ECONNABORTED', request));
 
       // Clean up request
       request = null;
@@ -431,7 +409,7 @@ function xhrRequest(config) {
     request.onerror = function handleError() {
       // Real errors are hidden from us by the browser
       // onerror should only fire if it's a network error
-      reject(utils.createError('Network Error', config, null, request));
+      reject(xhrUtils.createError('Network Error', config, null, request));
 
       // Clean up request
       request = null;
@@ -439,7 +417,7 @@ function xhrRequest(config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      reject(utils.createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+      reject(xhrUtils.createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
         request));
 
       // Clean up request
@@ -449,10 +427,10 @@ function xhrRequest(config) {
     // Add xsrf header
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
+    if (xhrUtils.isStandardBrowserEnv()) {
       // Add xsrf header
-      var xsrfValue =  config.xsrfCookieName && (config.withCredentials || utils.isURLSameOrigin(config.url)) ?
-        utils.cookies.read(config.xsrfCookieName) :
+      var xsrfValue =  config.xsrfCookieName && (config.withCredentials || xhrUtils.isURLSameOrigin(config.url)) ?
+        xhrUtils.cookies.read(config.xsrfCookieName) :
         undefined;
 
       if (xsrfValue) {

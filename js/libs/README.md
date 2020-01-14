@@ -1,9 +1,11 @@
 ### common utils
 
 ```
-file            exports
+file            exports               depends
 
 common.js       CommonUtils
 fe.js           FEUtils
-xhr.js          utils, xhrRequest
+utils.js        utils                 CommonUtils, FEUtils
+xhr.js          xhrRequest            utils
+net.js          net                   utils, xhrRequest
 ```

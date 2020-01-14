@@ -2,12 +2,12 @@
 ### (chrome)api utils
 
 ```
-file              exports
+file              exports                                   depends
 
 storage.js        Storage
 tabs.js           Tabs
 bookmarks.js      Bookmarks
-helper.js         ApiHelper(.storage, .tabs, .bookmarks)
+helper.js         ApiHelper(.storage, .tabs, .bookmarks)    Storage, Tabs, Bookmarks
 ```
 
 
