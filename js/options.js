@@ -138,9 +138,43 @@ class Helper extends ApiHelper {
         }
         break;
       case 'bookmarks_get_tree':
-        chrome.bookmarks.getTree(tree => {
-          console.log(tree);
-        })
+        const traverseBookmark = objOrArray => {
+          // console.log(objOrArray);
+          var results = [];
+          if (Array.isArray(objOrArray)) {
+            results = results.concat(objOrArray.reduce((sum, it) => {
+              sum = sum.concat(traverseBookmark(it));
+              return sum;
+            }, []));
+          } else {
+            const item = {};
+            ['id', 'parentId', 'index', 'title', 'url', 'dateAdded', 'dateGroupModified'].forEach(key => {
+              if (objOrArray.hasOwnProperty(key)) {
+                item[key] = objOrArray[key];
+              } else {
+                item[key] = null;
+              }
+            });
+            results.push(item);
+            // console.log(results);
+            // console.log(objOrArray);
+            Array.isArray(objOrArray.children)
+            if (Array.isArray(objOrArray.children)) {
+              results = results.concat(traverseBookmark(objOrArray.children));
+            }
+            // console.log(results);
+          }
+          return results;
+        }
+        const bookmarkList = await new Promise((resolve, reject) => {
+          chrome.bookmarks.getTree(tree => {
+            console.log(tree);
+            // console.log(Array.isArray(tree));
+            resolve(traverseBookmark(tree));
+          });
+        });
+        console.log(bookmarkList);
+        return bookmarkList;
         break;
       case 'bookmarks_create_folder':
         try {
@@ -324,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     var neegLogin = true;
 
+    var net = null;
     var serverOrigin = null;
     var userInfo = null;
     var {token, username, realname, role} = {};
@@ -336,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!serverOrigin) {
         throw new Error('Error: setting.serverOrigin未找到');
       }
-      const net = new Net(serverOrigin);
+      net = new Net(serverOrigin);
       userInfo = await ApiHelper.storage.getData('userInfo');
       if (!setting || !userInfo) {
         throw new Error(`setting or userInfo not found in storage!`);
@@ -357,10 +392,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const loginForm = sectionAssist.querySelector(':scope > form.form_login');
-    const loginInfo = sectionAssist.querySelector(':scope > .login_info');
+    const assistOperation = sectionAssist.querySelector(':scope > .form.operation');
     if (neegLogin) {
       loginForm.style.display = 'block';
-      loginInfo.style.display = 'none';
+      assistOperation.style.display = 'none';
       loginForm.onsubmit = async evt => {
         evt.preventDefault();
         const target = evt.target;
@@ -406,8 +441,38 @@ document.addEventListener('DOMContentLoaded', () => {
       // });
     } else {
       loginForm.style.display = 'none';
-      loginInfo.style.display = 'block';
-      loginInfo.textContent = `你好，${username}`;
+      assistOperation.style.display = 'block';
+      assistOperation.querySelector('.form-item.title').textContent = `你好，${username}`;
+
+      assistOperation.onclick = async evt => {
+        // console.log(evt);
+        var target = evt.target;
+        while (target && target !== sectionApiShow && target.tagName != 'BUTTON') {
+          target = target.parentNode;
+        }
+        if (!target || target == sectionApiShow) {
+          return;
+        }
+        var action = target.dataset.action;
+        switch (action) {
+          case 'bookmark_force_update':
+          try {
+            await net.requestData(net.URL_LIST.bookmark_force_update, {
+              headers: {
+                token
+              },
+              data: {
+                bookmarks: await helper.handleAction('bookmarks_get_tree')
+              }
+            });
+          } catch (err) {
+            console.log(err);
+          }
+
+          break;
+        }
+        // helper.handleAction(action);
+      };
     }
     // console.log(setting);
   }

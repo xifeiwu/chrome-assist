@@ -18,6 +18,10 @@ class Net {
       verify_token: {
         path: '/api/user/verifyToken',
         method: 'get'
+      },
+      bookmark_force_update: {
+        path: '/api/bookmark/forceUpdate',
+        method: 'post'
       }
     }
     Object.keys(URL_LIST).forEach(key => {
