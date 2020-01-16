@@ -323,16 +323,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     var neegLogin = true;
-    const setting = await ApiHelper.storage.getData('setting');
-    var serverOrigin = setting.serverOrigin;
-    if (!serverOrigin) {
-      throw new Error('Error: setting.serverOrigin未找到');
-    }
-    const net = new Net(serverOrigin);
 
+    var serverOrigin = null;
     var userInfo = null;
     var {token, username, realname, role} = {};
     try {
+      const setting = await ApiHelper.storage.getData('setting');
+      if (!setting) {
+        throw new Error('storage.setting not found');
+      }
+      serverOrigin = setting.serverOrigin;
+      if (!serverOrigin) {
+        throw new Error('Error: setting.serverOrigin未找到');
+      }
+      const net = new Net(serverOrigin);
       userInfo = await ApiHelper.storage.getData('userInfo');
       if (!setting || !userInfo) {
         throw new Error(`setting or userInfo not found in storage!`);
