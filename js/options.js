@@ -468,7 +468,46 @@ document.addEventListener('DOMContentLoaded', () => {
           } catch (err) {
             console.log(err);
           }
+          break;
+        case 'sync_from_server':
+          try {
+            const localBookmarks = await helper.handleAction('bookmarks_get_tree');
+            var end = localBookmarks.length;
+            while (end-- > 0) {
+              const targetBookmark = localBookmarks[end];
+              if (['0', '1', '2'].includes(targetBookmark.id)) {
+                continue;
+              }
+              await new Promise((resolve, reject) => {
+                chrome.bookmarks.remove(targetBookmark.id, () => {
+                  // console.log('bookmarks_remove');
+                  resolve();
+                });
+              });
+            }
+            var serverBookmarks = await net.requestData(net.URL_LIST.bookmark_list, {
+              headers: {
+                token
+              },
+            });
+            serverBookmarks = serverBookmarks.filter(it => !['0', '1', '2'].includes(it.id));
 
+            for (let i = 0; i < serverBookmarks.length; i++) {
+              const bookmark = serverBookmarks[i];
+              await new Promise((resolve, reject) => {
+                const params = {};
+                (bookmark.parentId != null) && (params.parentId = bookmark.parentId);
+                (bookmark.index != null) && (params.index = bookmark.index);
+                (bookmark.title != null) && (params.title = bookmark.title);
+                (bookmark.url != null) && (params.url = bookmark.url);
+                (bookmark.id != null) && (params.id = bookmark.id);
+                chrome.bookmarks.create(params, resolve);
+              });
+            }
+            // console.log(serverBookmarks);
+          } catch (err) {
+            console.log(err);
+          }
           break;
         }
         // helper.handleAction(action);

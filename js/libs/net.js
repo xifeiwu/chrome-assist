@@ -22,6 +22,10 @@ class Net {
       bookmark_force_update: {
         path: '/api/bookmark/forceUpdate',
         method: 'post'
+      },
+      bookmark_list: {
+        path: '/api/bookmark/list',
+        method: 'get'
       }
     }
     Object.keys(URL_LIST).forEach(key => {
